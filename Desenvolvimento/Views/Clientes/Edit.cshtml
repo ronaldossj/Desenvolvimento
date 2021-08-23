@@ -1,0 +1,132 @@
+﻿@model Desenvolvimento.Models.Clientes
+
+@{
+    ViewBag.Title = "Editar";
+}
+
+<h2>Editar - Clientes</h2>
+
+@using (Html.BeginForm(null, null, new { @id = string.Empty }, FormMethod.Post, new { @id = "formClientesCreate" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.ID)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.nome_cliente, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.nome_cliente, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.nome_cliente, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.email, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.email, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.email, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.cpf, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.cpf, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.cpf, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.status, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="checkbox">
+                    @Html.EditorFor(model => model.status)
+                    @Html.ValidationMessageFor(model => model.status, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Salvar" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Voltar para Lista", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/jquery.mask.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script>
+        $('.cpf').mask('000.000.000-00', { reverse: true });
+
+        function isValidCPF(cpf) {
+            if (typeof cpf !== "string") return false
+            cpf = cpf.replace(/[\s.-]*/igm, '')
+            if (
+                !cpf || cpf.length != 11 || cpf == "00000000000" || cpf == "11111111111" || cpf == "22222222222" || cpf == "33333333333" ||
+                cpf == "44444444444" || cpf == "55555555555" || cpf == "66666666666" || cpf == "77777777777" || cpf == "88888888888" || cpf == "99999999999"
+            ) {
+                return false
+            }
+            var soma = 0
+            var resto
+            for (var i = 1; i <= 9; i++)
+                soma = soma + parseInt(cpf.substring(i - 1, i)) * (11 - i)
+            resto = (soma * 10) % 11
+            if ((resto == 10) || (resto == 11)) resto = 0
+            if (resto != parseInt(cpf.substring(9, 10))) return false
+            soma = 0
+            for (var i = 1; i <= 10; i++)
+                soma = soma + parseInt(cpf.substring(i - 1, i)) * (12 - i)
+            resto = (soma * 10) % 11
+            if ((resto == 10) || (resto == 11)) resto = 0
+            if (resto != parseInt(cpf.substring(10, 11))) return false
+            return true
+        }
+        $.validator.addMethod('validarCPF', function () {
+            var cpf = $("#cpf").val();
+            return isValidCPF(cpf);
+        })
+        $("#formClientesCreate").validate({
+            rules: {
+                nome_cliente: {
+                    required: true,
+                },
+                email: {
+                    email: true,
+                    required: true,
+                },
+                cpf: {
+                    required: true,
+                    validarCPF: true,
+                    minlength: 14,
+
+                },
+            },
+            messages: {
+                nome_cliente: {
+                    required: "Campo Obrigatório",
+                },
+                email: {
+                    email: "Digite um e-mail válido",
+                    required: "Campo Obrigatório",
+                },
+                cpf: {
+                    required: "Campo Obrigatório",
+                    validarCPF: "CPF inválido",
+                    minlength: "Digite um CPF válido",
+                },
+            }
+        });
+    </script>
+}
+
